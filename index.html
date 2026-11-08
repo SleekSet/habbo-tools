@@ -191,8 +191,8 @@ else badges.forEach(b=>{const d=document.createElement('div');d.className='bd';d
 d.innerHTML='<img src="'+bi(b.code)+'" onerror="this.style.opacity=.3"/><div class="c">'+b.code+'</div>';be.appendChild(d)});
 function fill(el,items,fn){el.innerHTML='';if(!items.length){el.innerHTML='<div class="empty">Nothing public</div>';return}
 items.forEach(i=>{const d=document.createElement('div');d.className='lc';d.innerHTML=fn(i);el.appendChild(d)})}
-fill($('#friends'),friends,f=>{const fig=f.figureString||f.habboFigure||'';return'<img src="'+(fig?av(fig,'m'):'')+'" onerror="this.style.display=\'none\'"/><div><div class="n">'+(f.name||'?')+'</div><div class="s">'+(f.motto||'')+'</div></div>'});
-fill($('#groups'),groups,g=>{const img=g.badgeCode?bi(g.badgeCode):'';return(img?'<img src="'+img+'" onerror="this.style.display=\'none\'"/>':'<div style="width:44px;height:44px;background:rgba(0,0,0,.3);border-radius:6px"></div>')+'<div><div class="n">'+(g.name||'Group')+'</div><div class="s">'+((g.description||'').slice(0,50))+'</div></div>'});
+fill($('#friends'),friends,f=>{const fig=f.figureString||f.habboFigure||'';const src=fig?av(fig,'m'):'';return (src?'<img src="'+src+'" alt="">':'')+'<div><div class="n">'+(f.name||'?')+'</div><div class="s">'+(f.motto||'')+'</div></div>'});
+fill($('#groups'),groups,g=>{const img=g.badgeCode?bi(g.badgeCode):'';return (img?'<img src="'+img+'" alt="">':'<div style="width:44px;height:44px;background:rgba(0,0,0,.3);border-radius:6px"></div>')+'<div><div class="n">'+(g.name||'Group')+'</div><div class="s">'+((g.description||'').slice(0,50))+'</div></div>'});
 fill($('#rooms'),rooms,r=>'<div style="width:44px;height:44px;background:rgba(0,200,255,.12);border-radius:6px;display:flex;align-items:center;justify-content:center">🏠</div><div><div class="n">'+(r.name||'Room')+'</div><div class="s">'+((r.description||'').slice(0,45)||('ID '+(r.id||'')))+'</div></div>');
 stab('badges');$('#prof').classList.remove('hidden');
 msg('Found '+u.name+' · '+badges.length+' badges · '+friends.length+' friends');
