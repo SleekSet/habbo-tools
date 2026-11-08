@@ -31,6 +31,13 @@ input[type=text]{min-width:160px;flex:1;max-width:260px}
 .dot.on{background:var(--on)}.dot.off{background:var(--off)}
 .nm{font-family:'Press Start 2P',monospace;font-size:1rem;color:#fff}
 .lvl{background:linear-gradient(180deg,#ffd700,#e6a800);color:#1a1200;font-weight:700;font-size:.7rem;padding:3px 8px;border-radius:999px}
+.pill{font-weight:700;font-size:.65rem;padding:3px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.02em}
+.pill.pub{background:rgba(61,214,140,.2);color:var(--on);border:1px solid var(--on)}
+.pill.priv{background:rgba(255,107,107,.15);color:var(--off);border:1px solid var(--off)}
+.worn{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.worn .wl{font-size:.65rem;color:var(--muted);text-transform:uppercase;margin-right:4px}
+.worn img{width:36px;height:36px;image-rendering:pixelated;background:rgba(0,0,0,.25);border-radius:6px;border:1px solid var(--border)}
+.note{font-size:.72rem;color:var(--muted);margin-top:6px}
 .motto{color:var(--muted);font-style:italic;margin:6px 0 10px}
 .meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
 .mi{background:rgba(0,0,0,.25);border-radius:8px;padding:8px 10px;border:1px solid var(--border)}
@@ -93,10 +100,12 @@ footer a{color:var(--accent);text-decoration:none}
 <div style="position:relative"><img id="av" class="av" alt=""/><span id="dot" class="dot"></span></div>
 <div style="flex:1;min-width:160px">
 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
-<h1 id="nm" class="nm"></h1><span id="lv" class="lvl"></span>
+<h1 id="nm" class="nm"></h1><span id="lv" class="lvl"></span><span id="priv" class="pill"></span>
 </div>
 <p id="mo" class="motto"></p>
 <div class="meta" id="meta"></div>
+<div id="worn" class="worn hidden"></div>
+<p id="onnote" class="note hidden"></p>
 </div>
 </div>
 <div class="stabs">
@@ -180,14 +189,26 @@ const friends=profile.friends?.length?profile.friends:await api('/users/'+user.u
 const groups=profile.groups?.length?profile.groups:await api('/users/'+user.uniqueId+'/groups').catch(()=>[]);
 const rooms=profile.rooms?.length?profile.rooms:await api('/users/'+user.uniqueId+'/rooms').catch(()=>[]);
 const u=profile.user||user;
-$('#av').src=av(u.figureString);$('#av').alt=u.name;
-const on=!!u.online;$('#dot').className='dot '+(on?'on':'off');
-$('#nm').textContent=u.name;$('#lv').textContent='Lvl '+(u.currentLevel??'?');
-$('#mo').textContent=u.motto||'No motto';
-$('#meta').innerHTML=[['Status',on?'Online':'Offline'],['Member since',fd(u.memberSince)],['Last online',fd(u.lastAccessTime)],['Star Gems',(u.starGemCount||0).toLocaleString()],['XP',(u.totalExperience||0).toLocaleString()],['Profile',u.profileVisible?'Public':'Private']].map(([l,v])=>'<div class="mi"><div class="l">'+l+'</div><div class="v">'+v+'</div></div>').join('');
+const visible=!!(u.profileVisible??user.profileVisible);
+$('#av').src=av(u.figureString||user.figureString||'');$('#av').alt=u.name||user.name;
+const on=!!(u.online??user.online);$('#dot').className='dot '+(on?'on':'off');
+$('#nm').textContent=u.name||user.name;$('#lv').textContent='Lvl '+(u.currentLevel??user.currentLevel??'?');
+const priv=$('#priv');priv.textContent=visible?'Public':'Private';priv.className='pill '+(visible?'pub':'priv');
+$('#mo').textContent=u.motto||user.motto||'No motto';
+const statusTxt=on?'Online':'Offline';
+$('#meta').innerHTML=[['Status',statusTxt],['Member since',fd(u.memberSince||user.memberSince)],['Last online',fd(u.lastAccessTime||user.lastAccessTime)],['Star Gems',((u.starGemCount??user.starGemCount)??0).toLocaleString()],['XP',((u.totalExperience??user.totalExperience)??0).toLocaleString()],['Profile',visible?'Public':'Private']].map(([l,v])=>'<div class="mi"><div class="l">'+l+'</div><div class="v">'+v+'</div></div>').join('');
+const note=$('#onnote');
+if(on){note.classList.add('hidden');note.textContent=''}
+else{note.classList.remove('hidden');note.textContent='Offline can also mean online but hidden in Habbo settings.'}
+const wornSrc=(user.selectedBadges&&user.selectedBadges.length)?user.selectedBadges:(u.selectedBadges||[]);
+const worn=$('#worn');worn.innerHTML='';
+if(wornSrc.length){worn.classList.remove('hidden');worn.innerHTML='<span class="wl">Worn</span>'+wornSrc.map(b=>'<img src="'+bi(b.code)+'" title="'+(b.name||b.code)+'" onerror="this.style.opacity=.3"/>').join('')}
+else worn.classList.add('hidden');
 const be=$('#badges');be.innerHTML='';
-if(!badges.length)be.innerHTML='<div class="empty">No public badges</div>';
-else badges.forEach(b=>{const d=document.createElement('div');d.className='bd';d.title=(b.name||b.code)+'\n'+(b.description||'');
+if(!badges.length){
+  if(wornSrc.length){be.innerHTML='<div class="empty">Full badge list hidden (private profile). Worn badges shown above.</div>';}
+  else be.innerHTML='<div class="empty">'+(visible?'No public badges':'Profile private — full badges not available')+'</div>';
+}else badges.forEach(b=>{const d=document.createElement('div');d.className='bd';d.title=(b.name||b.code)+'\n'+(b.description||'');
 d.innerHTML='<img src="'+bi(b.code)+'" onerror="this.style.opacity=.3"/><div class="c">'+b.code+'</div>';be.appendChild(d)});
 function fill(el,items,fn){el.innerHTML='';if(!items.length){el.innerHTML='<div class="empty">Nothing public</div>';return}
 items.forEach(i=>{const d=document.createElement('div');d.className='lc';d.innerHTML=fn(i);el.appendChild(d)})}
@@ -195,7 +216,7 @@ fill($('#friends'),friends,f=>{const fig=f.figureString||f.habboFigure||'';const
 fill($('#groups'),groups,g=>{const img=g.badgeCode?bi(g.badgeCode):'';return (img?'<img src="'+img+'" alt="">':'<div style="width:44px;height:44px;background:rgba(0,0,0,.3);border-radius:6px"></div>')+'<div><div class="n">'+(g.name||'Group')+'</div><div class="s">'+((g.description||'').slice(0,50))+'</div></div>'});
 fill($('#rooms'),rooms,r=>'<div style="width:44px;height:44px;background:rgba(0,200,255,.12);border-radius:6px;display:flex;align-items:center;justify-content:center">🏠</div><div><div class="n">'+(r.name||'Room')+'</div><div class="s">'+((r.description||'').slice(0,45)||('ID '+(r.id||'')))+'</div></div>');
 stab('badges');$('#prof').classList.remove('hidden');
-msg('Found '+u.name+' · '+badges.length+' badges · '+friends.length+' friends');
+msg((u.name||user.name)+' · '+(visible?'Public':'Private')+' · '+(on?'Online':'Offline')+' · '+(badges.length||wornSrc.length)+' badges'+(visible?(' · '+friends.length+' friends'):''));
 }catch(e){msg(e.message||'Error',1)}finally{$('#go').disabled=0}
 }
 $('#go').onclick=search;$('#user').onkeydown=e=>{if(e.key==='Enter')search()};
