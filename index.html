@@ -1,1 +1,249 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Habbo Tools · Official API</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0b0f14;--panel:#151c27;--p2:#1c2636;--border:#2e3d52;--accent:#00c8ff;--gold:#ffd700;--text:#e8f0fe;--muted:#8b9bb4;--on:#3dd68c;--off:#ff6b6b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;background-image:radial-gradient(ellipse at 15% -10%,rgba(0,200,255,.09),transparent 45%),radial-gradient(ellipse at 85% 110%,rgba(255,107,157,.07),transparent 45%)}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 56px}
+header{text-align:center;margin-bottom:24px}
+.logo{font-family:'Press Start 2P',monospace;font-size:clamp(1rem,2.8vw,1.4rem);color:var(--accent);text-shadow:0 0 20px rgba(0,200,255,.4);margin-bottom:8px}
+.sub{color:var(--muted);font-size:.9rem}
+.row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin-bottom:16px}
+select,input[type=text]{background:var(--p2);border:2px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:.95rem;outline:none}
+select:focus,input:focus{border-color:var(--accent)}
+input[type=text]{min-width:160px;flex:1;max-width:260px}
+.btn{background:linear-gradient(180deg,#00d4ff,#0099cc);color:#041018;border:none;padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;box-shadow:0 3px 0 #006688}
+.btn:hover{transform:translateY(-1px)}.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.nav{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+.nav button{background:var(--panel);border:2px solid var(--border);color:var(--muted);padding:9px 14px;border-radius:999px;font-weight:600;font-size:.85rem;cursor:pointer}
+.nav button.active,.nav button:hover{color:var(--accent);border-color:var(--accent)}
+.status{text-align:center;min-height:24px;margin-bottom:12px;color:var(--muted);font-size:.85rem}
+.status.err{color:var(--off)}.hidden{display:none!important}
+.panel{background:var(--panel);border:2px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 10px 36px rgba(0,0,0,.4)}
+.ph{display:flex;gap:18px;padding:20px;flex-wrap:wrap;background:linear-gradient(135deg,#1a2435,#121a26);border-bottom:2px solid var(--border)}
+.av{image-rendering:pixelated;width:100px;height:172px;background:rgba(0,0,0,.25);border-radius:8px;border:2px solid var(--border)}
+.dot{position:absolute;top:6px;right:6px;width:12px;height:12px;border-radius:50%;border:2px solid var(--panel)}
+.dot.on{background:var(--on)}.dot.off{background:var(--off)}
+.nm{font-family:'Press Start 2P',monospace;font-size:1rem;color:#fff}
+.lvl{background:linear-gradient(180deg,#ffd700,#e6a800);color:#1a1200;font-weight:700;font-size:.7rem;padding:3px 8px;border-radius:999px}
+.motto{color:var(--muted);font-style:italic;margin:6px 0 10px}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.mi{background:rgba(0,0,0,.25);border-radius:8px;padding:8px 10px;border:1px solid var(--border)}
+.mi .l{font-size:.62rem;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.mi .v{font-weight:600;font-size:.88rem}
+.stabs{display:flex;background:var(--p2);border-bottom:2px solid var(--border);overflow-x:auto}
+.stab{background:0;border:0;color:var(--muted);padding:11px 16px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;font-size:.85rem}
+.stab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tb{padding:18px;min-height:140px}
+.bg{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:8px}
+.bd{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;padding:8px 4px;text-align:center}
+.bd img{width:40px;height:40px;image-rendering:pixelated;display:block;margin:0 auto 4px}
+.bd .c{font-size:.58rem;color:var(--muted);word-break:break-all}
+.lg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.lc{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;gap:10px;align-items:center}
+.lc img{width:44px;height:44px;image-rendering:pixelated;border-radius:6px;flex-shrink:0}
+.lc .n{font-weight:600;font-size:.85rem}.lc .s{font-size:.7rem;color:var(--muted)}
+.empty{color:var(--muted);text-align:center;padding:24px}
+.card{background:var(--panel);border:2px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 10px 36px rgba(0,0,0,.35)}
+.card h2{font-family:'Press Start 2P',monospace;font-size:.8rem;color:var(--accent);margin-bottom:12px}
+.rb{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:8px}
+.pb{font-size:1.5rem;font-weight:700;color:var(--gold);margin:6px 0}
+.hg{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.hi{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center}
+.hi img{width:60px;height:100px;image-rendering:pixelated;display:block;margin:0 auto}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+footer{text-align:center;margin-top:32px;color:var(--muted);font-size:.75rem}
+footer a{color:var(--accent);text-decoration:none}
+@media(max-width:600px){.ph{flex-direction:column;align-items:center;text-align:center}.meta{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div class="logo">HABBO TOOLS</div>
+<p class="sub">Profiles · Marketplace · Badge owners · Hot looks</p>
+</header>
+<div class="row">
+<select id="hotel">
+<option value="com">Habbo.com</option><option value="es">Habbo.es</option>
+<option value="com.br">Habbo.com.br</option><option value="de">Habbo.de</option>
+<option value="fi">Habbo.fi</option><option value="fr">Habbo.fr</option>
+<option value="it">Habbo.it</option><option value="nl">Habbo.nl</option>
+<option value="com.tr">Habbo.com.tr</option>
+</select>
+</div>
+<div class="nav">
+<button class="active" data-v="profile">Profile</button>
+<button data-v="market">Marketplace</button>
+<button data-v="badge">Badge owners</button>
+<button data-v="hot">Hot looks</button>
+</div>
+<div id="st" class="status"></div>
+
+<div id="v-profile">
+<div class="row"><input id="user" placeholder="Habbo name…"/><button class="btn" id="go">Search</button></div>
+<div id="prof" class="panel hidden">
+<div class="ph">
+<div style="position:relative"><img id="av" class="av" alt=""/><span id="dot" class="dot"></span></div>
+<div style="flex:1;min-width:160px">
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
+<h1 id="nm" class="nm"></h1><span id="lv" class="lvl"></span>
+</div>
+<p id="mo" class="motto"></p>
+<div class="meta" id="meta"></div>
+</div>
+</div>
+<div class="stabs">
+<button class="stab active" data-t="badges">Badges</button>
+<button class="stab" data-t="friends">Friends</button>
+<button class="stab" data-t="groups">Groups</button>
+<button class="stab" data-t="rooms">Rooms</button>
+</div>
+<div id="t-badges" class="tb"><div id="badges" class="bg"></div></div>
+<div id="t-friends" class="tb hidden"><div id="friends" class="lg"></div></div>
+<div id="t-groups" class="tb hidden"><div id="groups" class="lg"></div></div>
+<div id="t-rooms" class="tb hidden"><div id="rooms" class="lg"></div></div>
+</div>
+</div>
+
+<div id="v-market" class="hidden">
+<div class="card">
+<h2>Marketplace</h2>
+<p style="color:var(--muted);font-size:.85rem;margin-bottom:12px">Average sold price for a classname.</p>
+<div class="row">
+<select id="itype"><option value="room">Floor</option><option value="wall">Wall</option></select>
+<input id="item" placeholder="e.g. throne"/>
+<button class="btn" id="mgo">Lookup</button>
+</div>
+<div id="mres" class="rb hidden"></div>
+</div>
+</div>
+
+<div id="v-badge" class="hidden">
+<div class="card">
+<h2>Badge owners</h2>
+<p style="color:var(--muted);font-size:.85rem;margin-bottom:12px">Owner count (staff/VIP excluded).</p>
+<div class="row">
+<input id="bcode" placeholder="e.g. ACH_BasicClub1"/>
+<button class="btn" id="bgo">Lookup</button>
+</div>
+<div id="bres" class="rb hidden"></div>
+</div>
+</div>
+
+<div id="v-hot" class="hidden">
+<div class="card">
+<h2>Hot looks</h2>
+<button class="btn" id="hgo" style="margin-bottom:14px">Load</button>
+<div id="hgrid" class="hg"></div>
+</div>
+</div>
+
+<footer>
+Official <a href="https://www.habbo.com/api/public/api-docs/" target="_blank">Habbo Web API</a>
+· <a href="https://github.com/SleekSet/habbo-tools" target="_blank">GitHub</a>
+· Not affiliated with Sulake
+</footer>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const hotel=$('#hotel'),st=$('#st');
+function base(){const h=hotel.value;if(h==='com')return'https://www.habbo.com';if(h==='com.br')return'https://www.habbo.com.br';if(h==='com.tr')return'https://www.habbo.com.tr';return'https://www.habbo.'+h}
+function av(f,s){return base()+'/habbo-imaging/avatarimage?figure='+encodeURIComponent(f)+'&size='+(s||'l')+'&direction=2&head_direction=3&gesture=sml'}
+function bi(c){return base()+'/c_images/album1584/'+c+'.gif'}
+function fd(i){if(!i)return'—';try{return new Date(i).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}catch(e){return String(i).slice(0,10)}}
+function msg(m,e){st.innerHTML=m||'';st.classList.toggle('err',!!e)}
+async function api(p,o){const r=await fetch(base()+'/api/public'+p,o||{});if(r.status===404)throw new Error('Not found (or private).');if(!r.ok)throw new Error('API '+r.status);const c=r.headers.get('content-type')||'';return c.includes('json')?r.json():r.text()}
+
+document.querySelectorAll('.nav button').forEach(b=>{
+b.onclick=()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+['profile','market','badge','hot'].forEach(v=>$('#v-'+v).classList.toggle('hidden',v!==b.dataset.v));msg('')}
+});
+function stab(n){document.querySelectorAll('.stab').forEach(t=>t.classList.toggle('active',t.dataset.t===n));
+document.querySelectorAll('#v-profile .tb').forEach(c=>c.classList.add('hidden'));$('#t-'+n).classList.remove('hidden')}
+document.querySelectorAll('.stab').forEach(t=>t.onclick=()=>stab(t.dataset.t));
+
+async function search(){
+const name=$('#user').value.trim();if(!name){msg('Enter a name.',1);return}
+$('#go').disabled=1;$('#prof').classList.add('hidden');msg('<span class="spin"></span> Looking up…');
+try{
+const user=await api('/users?name='+encodeURIComponent(name));
+let profile;try{profile=await api('/users/'+user.uniqueId+'/profile')}catch(e){profile={user,groups:[],badges:[],rooms:[],friends:[]}}
+const badges=profile.badges?.length?profile.badges:await api('/users/'+user.uniqueId+'/badges').catch(()=>[]);
+const friends=profile.friends?.length?profile.friends:await api('/users/'+user.uniqueId+'/friends').catch(()=>[]);
+const groups=profile.groups?.length?profile.groups:await api('/users/'+user.uniqueId+'/groups').catch(()=>[]);
+const rooms=profile.rooms?.length?profile.rooms:await api('/users/'+user.uniqueId+'/rooms').catch(()=>[]);
+const u=profile.user||user;
+$('#av').src=av(u.figureString);$('#av').alt=u.name;
+const on=!!u.online;$('#dot').className='dot '+(on?'on':'off');
+$('#nm').textContent=u.name;$('#lv').textContent='Lvl '+(u.currentLevel??'?');
+$('#mo').textContent=u.motto||'No motto';
+$('#meta').innerHTML=[['Status',on?'Online':'Offline'],['Member since',fd(u.memberSince)],['Last online',fd(u.lastAccessTime)],['Star Gems',(u.starGemCount||0).toLocaleString()],['XP',(u.totalExperience||0).toLocaleString()],['Profile',u.profileVisible?'Public':'Private']].map(([l,v])=>'<div class="mi"><div class="l">'+l+'</div><div class="v">'+v+'</div></div>').join('');
+const be=$('#badges');be.innerHTML='';
+if(!badges.length)be.innerHTML='<div class="empty">No public badges</div>';
+else badges.forEach(b=>{const d=document.createElement('div');d.className='bd';d.title=(b.name||b.code)+'\n'+(b.description||'');
+d.innerHTML='<img src="'+bi(b.code)+'" onerror="this.style.opacity=.3"/><div class="c">'+b.code+'</div>';be.appendChild(d)});
+function fill(el,items,fn){el.innerHTML='';if(!items.length){el.innerHTML='<div class="empty">Nothing public</div>';return}
+items.forEach(i=>{const d=document.createElement('div');d.className='lc';d.innerHTML=fn(i);el.appendChild(d)})}
+fill($('#friends'),friends,f=>{const fig=f.figureString||f.habboFigure||'';return'<img src="'+(fig?av(fig,'m'):'')+'" onerror="this.style.display=\'none\'"/><div><div class="n">'+(f.name||'?')+'</div><div class="s">'+(f.motto||'')+'</div></div>'});
+fill($('#groups'),groups,g=>{const img=g.badgeCode?bi(g.badgeCode):'';return(img?'<img src="'+img+'" onerror="this.style.display=\'none\'"/>':'<div style="width:44px;height:44px;background:rgba(0,0,0,.3);border-radius:6px"></div>')+'<div><div class="n">'+(g.name||'Group')+'</div><div class="s">'+((g.description||'').slice(0,50))+'</div></div>'});
+fill($('#rooms'),rooms,r=>'<div style="width:44px;height:44px;background:rgba(0,200,255,.12);border-radius:6px;display:flex;align-items:center;justify-content:center">🏠</div><div><div class="n">'+(r.name||'Room')+'</div><div class="s">'+((r.description||'').slice(0,45)||('ID '+(r.id||'')))+'</div></div>');
+stab('badges');$('#prof').classList.remove('hidden');
+msg('Found '+u.name+' · '+badges.length+' badges · '+friends.length+' friends');
+}catch(e){msg(e.message||'Error',1)}finally{$('#go').disabled=0}
+}
+$('#go').onclick=search;$('#user').onkeydown=e=>{if(e.key==='Enter')search()};
+
+async function market(){
+const item=$('#item').value.trim();if(!item){msg('Enter classname.',1);return}
+$('#mgo').disabled=1;msg('<span class="spin"></span> Fetching…');$('#mres').classList.add('hidden');
+try{
+const wall=$('#itype').value==='wall';
+const body=wall?{roomItems:[],wallItems:[{item}]}:{roomItems:[{item}],wallItems:[]};
+const data=await api('/marketplace/stats/batch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+const list=wall?(data.wallItemData||[]):(data.roomItemData||[]);
+const row=list.find(x=>(x.item||'').toLowerCase()===item.toLowerCase())||list[0];
+if(!row)throw new Error('No data for that item.');
+const hist=row.history||[];const latest=hist[hist.length-1]||hist[0]||{};
+const avg=latest.averagePrice??row.currentPrice??'—';
+$('#mres').innerHTML='<div style="font-size:.85rem;color:var(--muted)">'+(row.item||item)+' · '+(wall?'Wall':'Floor')+'</div><div class="pb">'+Number(avg).toLocaleString()+' ¢</div><div style="font-size:.85rem;color:var(--muted)">Sold: <b style="color:var(--text)">'+(latest.totalSoldItems??'—')+'</b> · Offers: <b style="color:var(--text)">'+(latest.totalOpenOffers??'—')+'</b></div>';
+$('#mres').classList.remove('hidden');msg('Marketplace: '+(row.item||item));
+}catch(e){msg(e.message||'Error',1)}finally{$('#mgo').disabled=0}
+}
+$('#mgo').onclick=market;$('#item').onkeydown=e=>{if(e.key==='Enter')market()};
+
+async function badge(){
+const code=$('#bcode').value.trim();if(!code){msg('Enter badge code.',1);return}
+$('#bgo').disabled=1;msg('<span class="spin"></span> Counting…');$('#bres').classList.add('hidden');
+try{
+const data=await api('/badge/owners/'+encodeURIComponent(code));
+const n=data.ownerCount??data.count??0;
+$('#bres').innerHTML='<div style="display:flex;gap:12px;align-items:center"><img src="'+bi(code)+'" style="width:48px;height:48px;image-rendering:pixelated" onerror="this.style.opacity=.3"/><div><div style="font-weight:700">'+(data.name||code)+'</div><div style="color:var(--muted);font-size:.85rem">'+(data.description||'')+'</div><div class="pb" style="font-size:1.3rem">'+Number(n).toLocaleString()+' owners</div></div></div>';
+$('#bres').classList.remove('hidden');msg('Badge '+code+': '+n+' owners');
+}catch(e){msg(e.message||'Error',1)}finally{$('#bgo').disabled=0}
+}
+$('#bgo').onclick=badge;$('#bcode').onkeydown=e=>{if(e.key==='Enter')badge()};
+
+async function hot(){
+$('#hgo').disabled=1;msg('<span class="spin"></span> Loading…');$('#hgrid').innerHTML='';
+try{
+const xml=await api('/lists/hotlooks');
+const doc=new DOMParser().parseFromString(xml,'text/xml');
+const list=[...doc.querySelectorAll('habbo')];
+if(!list.length)throw new Error('No hot looks.');
+list.forEach((h,i)=>{const f=h.getAttribute('figure')||'';const g=h.getAttribute('gender')||'';const d=document.createElement('div');d.className='hi';
+d.innerHTML='<img src="'+av(f,'m')+'"/><div style="font-size:.7rem;color:var(--muted);margin-top:4px">'+(g==='f'?'♀':'♂')+' #'+(i+1)+'</div>';
+$('#hgrid').appendChild(d)});
+msg(list.length+' hot looks');
+}catch(e){msg(e.message||'Error',1)}finally{$('#hgo').disabled=0}
+}
+$('#hgo').onclick=hot;
+</script>
+</body>
+</html>
